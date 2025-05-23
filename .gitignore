@@ -1,0 +1,14 @@
+# PyCharm
+.idea/
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+
+# MacOS
+.DS_Store
