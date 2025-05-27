@@ -7,11 +7,15 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+TABLE_SELECTOR = "table.border"
+
 def extract_all_pages(driver, timeout: int = 10) -> pd.DataFrame:
     """
     Extrai todas as páginas de APACs: itera
     clicando em “próxima página” até não encontrar mais,
     acumulando somente as páginas que contenham “Nr. APAC”.
+    Usa stale-element e comparação de HTML para garantir
+    que cada página seja nova.
     """
     dfs = []
     wait = WebDriverWait(driver, timeout)
@@ -25,15 +29,15 @@ def extract_all_pages(driver, timeout: int = 10) -> pd.DataFrame:
         print(f"\n— Página {page} —")
 
         # aguarda e coleta todas as tables com class="border"
-        wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table.border")))
-        tables = driver.find_elements(By.CSS_SELECTOR, "table.border")
+        wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, TABLE_SELECTOR)))
+        tables = driver.find_elements(By.CSS_SELECTOR, TABLE_SELECTOR)
         if not tables:
             print("❌ Não encontrei nenhuma tabela nesta página.")
         else:
             # escolhe tabela de resultados pela maior # de <tr>
             table = max(tables, key=lambda t: len(t.find_elements(By.TAG_NAME, "tr")))
-            html = table.get_attribute("outerHTML")
-            df_raw = pd.read_html(html, flavor="lxml", header=None)[0]
+            html_before = table.get_attribute("outerHTML")
+            df_raw = pd.read_html(html_before, flavor="lxml", header=None)[0]
             print(f"  Linhas brutas: {df_raw.shape[0]}")
 
             # tenta localizar o cabeçalho "Nr. APAC"
@@ -57,11 +61,17 @@ def extract_all_pages(driver, timeout: int = 10) -> pd.DataFrame:
                 img = driver.find_element(By.CSS_SELECTOR, "img[src*='bt_proximo1.gif']")
             link = img.find_element(By.XPATH, "./ancestor::a[1]")
             print("⏭️ Clicando em próxima página…")
+
+            # robust wait: stale + HTML diferente
             link.click()
-            time.sleep(1)
+            wait.until(EC.staleness_of(table))
+            wait.until(lambda d: d.find_element(By.CSS_SELECTOR, TABLE_SELECTOR)
+                               .get_attribute("outerHTML") != html_before)
+            time.sleep(0.5)  # opcional
             page += 1
+
         except (NoSuchElementException, TimeoutException):
-            print("🔚 Botão de próxima página não encontrado. Finalizando.")
+            print("🔚 Botão de próxima página não encontrado ou timeout. Finalizando.")
             break
 
     # concatena tudo
