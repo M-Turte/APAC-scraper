@@ -1,34 +1,37 @@
 # APAC Scraper
 
-Este projeto automatiza a extração de dados de APACs (Autorização de Procedimentos de Alta Complexidade) a partir do sistema SIGA Saúde da Prefeitura de São Paulo, usando Selenium e pandas. O resultado é exportado para um arquivo Excel (`apacs_siga.xlsx`) para posterior análise.
+Este projeto automatiza a extração de dados de APACs (Autorização de Procedimentos de Alta Complexidade) a partir do sistema SIGA Saúde da Prefeitura de São Paulo, usando Selenium e pandas. O resultado é exportado para:
+
+- **Excel**: `apacs_siga.xlsx`  
+- **CSV**:   `apacs_siga.csv`
 
 ---
 
-##  Descrição
+## Descrição
 
-* Realiza login manual (usuário, senha e CAPTCHA).
-* Navega até o formulário de "Acompanhamento de Solicitação".
-* Preenche filtros de período e tipo de estabelecimento.
-* Extrai todas as páginas de resultados automaticamente.
-* Exporta os dados consolidados para um arquivo Excel.
+- Realiza login manual (usuário, senha e CAPTCHA).  
+- Navega até o formulário de "Acompanhamento de Solicitação".  
+- Preenche filtros de período e tipo de estabelecimento.  
+- Extrai todas as páginas de resultados automaticamente.  
+- Exporta os dados consolidados para arquivos Excel e CSV.
 
 ---
 
-##  Requisitos
+## Requisitos
 
-* Python 3.8+
-* Google Chrome instalado
-* ChromeDriver compatível com sua versão do Chrome
+- Python 3.8+  
+- Google Chrome instalado  
+- **webdriver-manager** (gera e gerencia o ChromeDriver automaticamente)
 
-Dependências Python (instaladas via `requirements.txt`):
-
+Dependências (em `requirements.txt`):
 ```text
 selenium
 pandas
 lxml
 openpyxl
-beautifulsoup4  # se usar fetch via API
-requests        # opcional, para abordagem API
+beautifulsoup4
+requests
+webdriver-manager
 ```
 
 ---
@@ -67,7 +70,6 @@ APAC-scraper/
 │   ├── extraction.py   # extração e paginação
 │   ├── export.py       # exportação para Excel
 │   ├── main.py         # fluxo automático completo
-│   └── manual_extract.py # modo interativo de extração
 ├── requirements.txt    # dependências
 ├── .gitignore          # arquivos ignorados pelo Git
 └── README.md           # documentação do projeto
@@ -84,13 +86,18 @@ APAC-scraper/
    python -m apac_scraper.main --start dd/MM/yyyy --end dd/MM/yyyy
    ```
 2. Faça login manualmente no navegador (aparecerá o prompt).
-3. Aguarde até o Excel `apacs_siga.xlsx` ser gerado na raiz do projeto.
+3. Aguarde até que apacs_siga.xlsx e apacs_siga.csv apareçam na raiz.
 
 ---
 
 ##  Contribuição
 
 Pull requests são bem-vindos! Para mudanças grandes, abra uma Issue primeiro para discutir o que você gostaria de implementar.
+
+
+---
+
+**4. Publicar a branch e abrir o Pull Request**  
 
 ---
 
